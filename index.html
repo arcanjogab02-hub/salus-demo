@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Salus · Auxílio-Saúde · TJTO — v2 (autoral)</title>
+<style>
+  :root{
+    --tjto:#0799BD; --tjto-2:#19B6D8; --tjto-dark:#05708C; --tjto-darker:#063A4A; --tjto-deep:#042934;
+    --tjto-tint:#E7F6FA; --gold:#F2A900; --gold-deep:#C98A00;
+    --ok:#1E9E6A; --ok-bg:#E7F6EE; --warn:#E08A1E; --warn-bg:#FBF1E0; --danger:#D64550; --danger-bg:#FBE9EA;
+    --ink:#13242B; --muted:#5B6B73; --line:#E3EBEE; --surface:#F2F7F9; --white:#fff;
+    --shadow:0 12px 34px rgba(6,58,74,.13); --shadow-sm:0 2px 10px rgba(6,58,74,.07);
+    --font:'Segoe UI',system-ui,-apple-system,Roboto,'Helvetica Neue',Arial,sans-serif;
+  }
+  *{box-sizing:border-box} html,body{height:100%}
+  body{margin:0;font-family:var(--font);color:var(--ink);background:var(--surface);overflow:hidden}
+  button{font-family:inherit}
+
+  /* ===================== LOGIN ===================== */
+  .login{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:18px;overflow:hidden;
+    background:radial-gradient(130% 80% at 15% 0%, #0b5972 0%, var(--tjto-darker) 45%, var(--tjto-deep) 100%)}
+  .login .wavebg{position:absolute;left:0;right:0;bottom:0;opacity:.16;pointer-events:none}
+  .login-card{position:relative;z-index:1;width:100%;max-width:430px;background:#fff;border-radius:22px;box-shadow:0 24px 70px rgba(2,20,28,.45);
+    padding:22px 26px 20px;animation:pop .3s ease}
+  @keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+  .login-card .top{text-align:center}
+  .login-card .mascot{width:74px;height:74px}
+  .login-card h1{font-size:20px;margin:6px 0 2px;letter-spacing:-.4px}
+  .login-card h1 i{font-style:normal;color:var(--tjto)}
+  .login-card .tag{font-size:11.5px;color:var(--muted);margin-bottom:10px}
+  .login-card .intro{font-size:13px;color:var(--muted);line-height:1.5;text-align:center;margin:0 4px 14px}
+  .fld{margin-bottom:12px}
+  .fld>label{display:block;font-size:11.5px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+  .fld input{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:11px;font-size:14px;font-family:inherit}
+  .fld input:focus{outline:none;border-color:var(--tjto)}
+  .seg{display:flex;gap:8px;flex-wrap:wrap}
+  .seg-btn{flex:1;min-width:90px;padding:10px 8px;border:1.5px solid var(--line);background:#fff;border-radius:11px;cursor:pointer;font-size:13px;font-weight:600;color:var(--ink);transition:.14s}
+  .seg-btn:hover{border-color:var(--tjto)}
+  .seg-btn.on{background:var(--tjto-tint);border-color:var(--tjto);color:var(--tjto-dark)}
+  .lg-enter{width:100%;margin-top:6px;padding:13px;border:none;border-radius:12px;cursor:pointer;font-size:14.5px;font-weight:700;color:#fff;
+    background:linear-gradient(180deg,var(--tjto-2),var(--tjto));box-shadow:0 8px 20px rgba(7,153,189,.35);transition:.15s}
+  .lg-enter:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.04)}
+  .lg-enter:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
+  .skip{display:block;text-align:center;margin-top:11px;font-size:12.5px;color:var(--muted);cursor:pointer;text-decoration:underline}
+  .skip:hover{color:var(--tjto-dark)}
+  .lg-foot{margin-top:13px;padding-top:11px;border-top:1px solid var(--line);text-align:center;font-size:11px;color:var(--muted)}
+
+  /* ===================== APP ===================== */
+  .app{display:flex;height:100vh}
+  .sidebar{width:286px;flex-shrink:0;position:relative;color:#dff1f6;display:flex;flex-direction:column;padding:18px 14px 14px;
+    background:radial-gradient(120% 60% at 0% 0%, #0b5972 0%, var(--tjto-darker) 42%, var(--tjto-deep) 100%);overflow:hidden}
+  .sidebar .wavebg{position:absolute;left:0;right:0;bottom:0;opacity:.12;pointer-events:none}
+  .brand{display:flex;align-items:center;gap:11px;padding:2px 6px 16px;position:relative;z-index:1}
+  .brand .sym{width:44px;height:44px;flex-shrink:0;filter:drop-shadow(0 3px 8px rgba(0,0,0,.28))}
+  .brand .wm{font-size:19px;font-weight:800;letter-spacing:-.5px;color:#fff;line-height:1}
+  .brand .wm i{font-style:normal;color:var(--tjto-2)}
+  .brand small{display:block;font-size:11px;color:#9cc7d4;letter-spacing:.3px;margin-top:2px}
+  .newchat{position:relative;z-index:1;display:flex;align-items:center;gap:9px;width:100%;border:none;cursor:pointer;
+    background:linear-gradient(180deg,var(--tjto-2),var(--tjto));color:#04303c;padding:12px 14px;border-radius:12px;
+    font-size:14px;font-weight:700;box-shadow:0 6px 16px rgba(7,153,189,.35);transition:.15s}
+  .newchat:hover{transform:translateY(-1px);filter:brightness(1.04)}
+  .side-label{position:relative;z-index:1;font-size:10.5px;text-transform:uppercase;letter-spacing:1px;color:#7fb4c3;margin:18px 8px 7px;font-weight:700}
+  .topic{position:relative;z-index:1;display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:10px;color:#d3ecf2;font-size:13.5px;cursor:pointer;transition:.15s;border:1px solid transparent}
+  .topic:hover{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.08)}
+  .topic .tg{width:9px;height:9px;border-radius:3px;flex-shrink:0}
+  .reslink{position:relative;z-index:1;display:flex;align-items:center;gap:10px;padding:7px 11px;border-radius:10px;color:#cfe9f0;font-size:13px;cursor:pointer;transition:.15s}
+  .reslink:hover{background:rgba(255,255,255,.07);color:#fff}
+  .reslink .ext{margin-left:auto;opacity:.6;font-size:11px} .reslink .ic{width:17px;text-align:center}
+  .side-foot{position:relative;z-index:1;margin-top:auto;padding-top:13px;border-top:1px solid rgba(255,255,255,.12);font-size:11.5px;color:#a7d0db;line-height:1.5}
+  .side-foot b{color:#eaf7fb}
+  .badge-proto{display:inline-block;background:var(--gold);color:#3a2a00;font-weight:800;font-size:9.5px;padding:2px 8px;border-radius:20px;letter-spacing:.5px}
+
+  .main{flex:1;display:flex;flex-direction:column;min-width:0;background:var(--surface);position:relative}
+  .topbar{height:60px;flex-shrink:0;display:flex;align-items:center;gap:12px;padding:0 22px;background:#fff;border-bottom:1px solid var(--line);position:relative;z-index:5}
+  .topbar .burger{display:none;border:none;background:none;font-size:22px;cursor:pointer;color:var(--tjto-darker)}
+  .topbar .ttl b{font-size:15.5px;letter-spacing:-.2px} .topbar .ttl small{display:block;font-size:11.5px;color:var(--muted)}
+  .top-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+  .src-pill{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--tjto-dark);background:var(--tjto-tint);padding:6px 12px;border-radius:20px;font-weight:600;border:1px solid #cfeaf1}
+  .status-online{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ok);background:var(--ok-bg);padding:6px 12px;border-radius:20px;font-weight:700;border:1px solid #c7ead8}
+  .status-online .live{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px rgba(30,158,106,.18);animation:beat 1.8s infinite}
+  @keyframes beat{0%,100%{box-shadow:0 0 0 3px rgba(30,158,106,.18)}50%{box-shadow:0 0 0 5px rgba(30,158,106,.07)}}
+  .wavebar{height:13px;flex-shrink:0;display:block;color:var(--tjto)} .wavebar svg{display:block;width:100%;height:13px}
+
+  .scroll{flex:1;overflow-y:auto;scroll-behavior:smooth;display:flex;flex-direction:column;
+    background-image:radial-gradient(rgba(7,153,189,.05) 1px, transparent 1px);background-size:22px 22px}
+  .thread{width:100%;max-width:840px;margin:0 auto;padding:18px 20px 8px;flex:1;display:flex;flex-direction:column}
+
+  /* ===== Welcome (compacto, sem scroll) ===== */
+  .welcome{margin:auto;width:100%;text-align:center;animation:fade .4s;padding:6px 0}
+  .mglow{position:relative;display:inline-block}
+  .mglow::after{content:"";position:absolute;inset:-18px;border-radius:50%;background:radial-gradient(closest-side,rgba(7,153,189,.22),transparent);z-index:-1}
+  .mglow .mascot{width:78px;height:78px}
+  .welcome h1{font-size:23px;margin:8px 0 5px;letter-spacing:-.5px} .welcome h1 span{color:var(--tjto)}
+  .welcome p.sub{color:var(--muted);font-size:14px;max-width:560px;margin:0 auto;line-height:1.5}
+  .wchip{margin-top:10px}
+  .shortcuts{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-top:18px;text-align:left}
+  .sc{background:#fff;border:1px solid var(--line);border-top:3px solid var(--c,var(--tjto));border-radius:13px;padding:13px 14px;cursor:pointer;transition:.16s;display:flex;flex-direction:column;gap:3px;min-height:96px}
+  .sc:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
+  .sc .ic{font-size:21px} .sc b{font-size:13.5px} .sc small{color:var(--muted);font-size:12px;line-height:1.35}
+  .reassure{margin-top:14px;font-size:11.5px;color:var(--muted);display:inline-flex;align-items:center;gap:7px}
+  .reassure svg{color:var(--gold-deep)}
+
+  /* ===== Mensagens ===== */
+  .msg{display:flex;gap:13px;margin:18px 0;animation:fade .35s}
+  .msg.user{flex-direction:row-reverse}
+  .avatar{width:38px;height:38px;flex-shrink:0;border-radius:12px;overflow:hidden;box-shadow:0 3px 9px rgba(6,58,74,.2)}
+  .avatar.you{background:linear-gradient(180deg,#0b5972,var(--tjto-darker));color:#fff;display:grid;place-items:center;font-weight:700;font-size:12px;border-radius:50%}
+  .bubble{max-width:80%;padding:14px 17px;border-radius:16px;font-size:14.5px;line-height:1.62;box-shadow:var(--shadow-sm)}
+  .msg.bot .bubble{background:#fff;border:1px solid var(--line);border-top-left-radius:5px}
+  .msg.user .bubble{background:linear-gradient(180deg,var(--tjto-2),var(--tjto));color:#fff;border-top-right-radius:5px}
+  .bubble p{margin:0 0 9px} .bubble p:last-child{margin:0}
+  .bubble ul,.bubble ol{margin:6px 0 9px;padding-left:20px} .bubble li{margin:3px 0}
+  .bubble code{background:var(--tjto-tint);color:var(--tjto-dark);padding:1px 6px;border-radius:6px;font-size:13px}
+  .bubble .lead{display:block;font-size:14.5px;font-weight:700;color:var(--tjto-dark);background:linear-gradient(180deg,#f4fbfd,var(--tjto-tint));border-left:3px solid var(--tjto);padding:9px 12px;border-radius:9px;margin:0 0 10px;line-height:1.45}
+  .bubble .lead.ok{color:#15663f;background:var(--ok-bg);border-left-color:var(--ok)}
+  .bubble .lead.warn{color:#8a4b10;background:var(--warn-bg);border-left-color:var(--warn)}
+  .source{margin-top:12px;border:1px solid #d8e9ee;background:linear-gradient(180deg,#f4fbfd,var(--tjto-tint));border-radius:11px;padding:10px 13px;font-size:12.5px;color:#16404c;display:flex;gap:11px;align-items:center;position:relative;overflow:hidden}
+  .source::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--gold),var(--gold-deep))}
+  .source .seal{flex-shrink:0}
+  .source .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--gold-deep);font-weight:800} .source b{color:var(--tjto-dark)}
+  .source .vf{margin-left:auto;display:flex;align-items:center;gap:4px;color:var(--ok);font-weight:700;font-size:11px;flex-shrink:0}
+  .followups{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
+  .followup{background:#fff;border:1px solid var(--line);border-radius:20px;padding:7px 14px;font-size:12.5px;color:var(--tjto-dark);cursor:pointer;transition:.15s;font-weight:600}
+  .followup:hover{background:var(--tjto-tint);border-color:var(--tjto)}
+  .feedback{display:flex;gap:6px;margin-top:11px;align-items:center}
+  .feedback button{border:1px solid var(--line);background:#fff;border-radius:9px;width:31px;height:29px;cursor:pointer;font-size:13px;transition:.15s}
+  .feedback button:hover{background:var(--tjto-tint);border-color:var(--tjto)} .feedback button.act{background:var(--ok-bg);border-color:var(--ok)}
+  .feedback small{color:var(--muted);font-size:11.5px;margin-left:4px}
+  .thinking{display:inline-flex;align-items:center;gap:9px;font-size:13.5px;color:var(--tjto-dark);font-weight:600}
+  .thinking .mag{animation:swing 1.4s ease-in-out infinite;transform-origin:60% 60%}
+  @keyframes swing{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(10deg)}}
+  .shimmer{background:linear-gradient(90deg,var(--tjto-dark) 30%,var(--tjto-2) 50%,var(--tjto-dark) 70%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sh 1.6s linear infinite}
+  @keyframes sh{to{background-position:-200% center}}
+  .stepper{margin:11px 0 2px} .step{display:flex;gap:11px} .step .rail{display:flex;flex-direction:column;align-items:center}
+  .step .node{width:23px;height:23px;border-radius:8px;background:linear-gradient(180deg,var(--tjto-2),var(--tjto));color:#fff;display:grid;place-items:center;font-size:11px;font-weight:800}
+  .step .line{width:2px;flex:1;background:var(--line);min-height:14px} .step:last-child .line{display:none}
+  .step .txt{padding-bottom:12px} .step .txt b{font-size:13.5px} .step .txt span{display:block;color:var(--muted);font-size:12.5px}
+  .sim{margin-top:12px;border:1px solid var(--line);border-radius:13px;overflow:hidden;box-shadow:var(--shadow-sm)}
+  .sim .sim-h{background:linear-gradient(180deg,var(--tjto-darker),var(--tjto-deep));color:#fff;padding:10px 14px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+  .sim .sim-b{padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .sim label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
+  .sim select,.sim input{width:100%;padding:9px;border:1px solid var(--line);border-radius:9px;font-size:13.5px;font-family:inherit}
+  .sim select:focus,.sim input:focus{outline:none;border-color:var(--tjto)} .sim .full{grid-column:1/3}
+  .sim button{background:linear-gradient(180deg,var(--tjto-2),var(--tjto));color:#fff;border:none;padding:11px;border-radius:9px;font-weight:700;cursor:pointer;font-size:13.5px}
+  .sim-out{grid-column:1/3;background:var(--tjto-tint);border-radius:10px;padding:12px 14px;font-size:13.5px;display:none}
+  .sim-out.show{display:block;animation:fade .3s} .sim-out .val{font-size:23px;font-weight:800;color:var(--tjto-dark)}
+
+  .composer{flex-shrink:0;padding:10px 20px 14px;background:linear-gradient(180deg,transparent,var(--surface) 32%)}
+  .composer .box{max-width:840px;margin:0 auto;display:flex;gap:10px;align-items:flex-end;background:#fff;border:1.5px solid var(--line);border-radius:17px;padding:8px 8px 8px 17px;box-shadow:var(--shadow);transition:.15s}
+  .composer .box:focus-within{border-color:var(--tjto);box-shadow:0 12px 34px rgba(7,153,189,.18)}
+  .composer textarea{flex:1;border:none;outline:none;resize:none;font-family:inherit;font-size:14.5px;line-height:1.5;max-height:110px;padding:8px 0;color:var(--ink)}
+  .composer .send{width:44px;height:44px;border-radius:13px;border:none;background:linear-gradient(180deg,var(--tjto-2),var(--tjto));color:#fff;cursor:pointer;flex-shrink:0;display:grid;place-items:center;transition:.15s}
+  .composer .send:hover{filter:brightness(1.05);transform:translateY(-1px)}
+  .composer .hint{max-width:840px;margin:7px auto 0;text-align:center;font-size:11.5px;color:var(--muted)} .composer .hint b{color:var(--tjto-dark)}
+
+  .ctx-tag{display:inline-flex;align-items:center;gap:6px;background:var(--tjto-tint);color:var(--tjto-dark);font-size:11.5px;padding:4px 11px;border-radius:20px;border:1px solid #cfeaf1;font-weight:600}
+  .ctx-tag .ed{cursor:pointer;opacity:.75;text-decoration:underline}
+  .mascot.float{animation:floaty 3.6s ease-in-out infinite}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  @media(max-width:880px){ .shortcuts{grid-template-columns:1fr 1fr} }
+  @media(max-width:820px){
+    .sidebar{position:fixed;left:-300px;top:0;bottom:0;z-index:30;transition:left .25s;box-shadow:var(--shadow)}
+    .sidebar.open{left:0}.topbar .burger{display:block}
+    .src-pill{display:none}
+    .scrim{display:none;position:fixed;inset:0;background:rgba(4,41,52,.45);z-index:20}.scrim.show{display:block}
+  }
+  @media(max-width:520px){ .shortcuts{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+
+<!-- Defs globais do mascote (gradiente + sombra) — fora de qualquer container display:none
+     para o robô renderizar em todas as instâncias, inclusive com a tela de login oculta. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1FC0E0"/><stop offset="1" stop-color="#0799BD"/></linearGradient>
+  <filter id="ds" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#063A4A" flood-opacity="0.22"/></filter>
+</defs></svg>
+
+<!-- ===================== TELA DE LOGIN / IDENTIFICAÇÃO ===================== -->
+<div class="login" id="login">
+  <svg class="wavebg" viewBox="0 0 1440 220" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 120 Q360 60 720 120 T1440 110 V220 H0 Z" fill="#7FE9FF"/>
+    <path d="M0 150 Q360 90 720 150 T1440 140 V220 H0 Z" fill="#19B6D8" opacity=".7"/>
+  </svg>
+  <div class="login-card">
+    <div class="top">
+      <span class="mascot" id="lg-mascot"></span>
+      <h1>Salus</h1>
+      <div class="tag">Assistente do Auxílio-Saúde · TJTO</div>
+    </div>
+    <p class="intro">Antes de começar, me conte rapidinho quem é você — assim eu <strong>personalizo as orientações</strong>. Não acessamos nenhum sistema; é só para adaptar as respostas.</p>
+    <div class="fld">
+      <label>Como prefere ser chamado(a)? <span style="font-weight:400;text-transform:none;color:var(--muted)">(opcional)</span></label>
+      <input id="lg-nome" placeholder="Seu nome" maxlength="40" autocomplete="off">
+    </div>
+    <div class="fld">
+      <label>Você é</label>
+      <div class="seg" id="seg-cargo">
+        <button class="seg-btn" onclick="segPick('cargo','Magistrado(a)',this)">Magistrado(a)</button>
+        <button class="seg-btn" onclick="segPick('cargo','Servidor(a)',this)">Servidor(a)</button>
+      </div>
+    </div>
+    <div class="fld">
+      <label>Vínculo</label>
+      <div class="seg" id="seg-vinculo">
+        <button class="seg-btn" onclick="segPick('vinculo','Ativo(a)',this)">Ativo(a)</button>
+        <button class="seg-btn" onclick="segPick('vinculo','Inativo(a)',this)">Inativo(a)</button>
+        <button class="seg-btn" onclick="segPick('vinculo','Pensionista',this)">Pensionista</button>
+      </div>
+    </div>
+    <button class="lg-enter" id="lg-enter" disabled onclick="enterApp()">Entrar no Salus →</button>
+    <span class="skip" onclick="skipLogin()">Entrar sem personalizar</span>
+    <div class="lg-foot">🔒 Ambiente interno do TJTO · informações usadas apenas nesta sessão (LGPD)</div>
+  </div>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div class="app" id="app" style="display:none">
+  <aside class="sidebar" id="sidebar">
+    <svg class="wavebg" viewBox="0 0 286 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 60 Q60 30 120 60 T286 55 V120 H0 Z" fill="#7FE9FF"/>
+      <path d="M0 80 Q70 50 150 80 T286 72 V120 H0 Z" fill="#19B6D8" opacity=".7"/>
+    </svg>
+    <div class="brand">
+      <span class="sym" id="brand-mascot" aria-label="Salus"></span>
+      <div><div class="wm">Salus</div><small>Auxílio-Saúde · TJTO</small></div>
+    </div>
+    <button class="newchat" onclick="resetChat()">✦ Nova dúvida</button>
+    <div class="side-label">Temas</div>
+    <div class="topic" onclick="ask('Quem tem direito ao Auxílio-Saúde?')"><span class="tg" style="background:#0799BD"></span>Quem tem direito</div>
+    <div class="topic" onclick="ask('Quais dependentes posso incluir?')"><span class="tg" style="background:#16A0A0"></span>Dependentes</div>
+    <div class="topic" onclick="ask('Como faço para solicitar o reembolso?')"><span class="tg" style="background:#C98A00"></span>Como solicitar</div>
+    <div class="topic" onclick="ask('Como altero minha solicitação para trocar de plano?')"><span class="tg" style="background:#16A0A0"></span>Alterar / trocar plano</div>
+    <div class="topic" onclick="ask('Quero simular o valor do meu reembolso')"><span class="tg" style="background:#1E9E6A"></span>Simular valor</div>
+    <div class="topic" onclick="ask('Qual o prazo para prestação de contas?')"><span class="tg" style="background:#E08A1E"></span>Prazos</div>
+    <div class="topic" onclick="ask('Minha solicitação foi indeferida, e agora?')"><span class="tg" style="background:#D64550"></span>Pendências</div>
+    <div class="side-label">Atalhos oficiais</div>
+    <div class="reslink" onclick="ask('Como faço para solicitar o reembolso?')"><span class="ic">📘</span> Manual do módulo <span class="ext">↗</span></div>
+    <div class="reslink" onclick="ask('Quem tem direito ao Auxílio-Saúde?')"><span class="ic">📜</span> Resolução nº 25/2021 <span class="ext">↗</span></div>
+    <div class="reslink" onclick="ask('Qual o prazo para prestação de contas?')"><span class="ic">🗓️</span> Calendário de prazos <span class="ext">↗</span></div>
+    <div class="side-foot"><span class="badge-proto">PROTÓTIPO</span><br><br>Atendimento humano — <b>SASDIGEP</b><br>(63) 3142-1178 · digep@tjto.jus.br<br>Diretoria de Gestão de Pessoas — TJTO</div>
+  </aside>
+  <div class="scrim" id="scrim" onclick="toggleMenu()"></div>
+
+  <main class="main">
+    <div class="topbar">
+      <button class="burger" onclick="toggleMenu()">☰</button>
+      <div class="ttl"><b>Salus</b><small>Assistente do Auxílio-Saúde</small></div>
+      <div class="top-right">
+        <div class="status-online"><span class="live"></span> Online</div>
+      </div>
+    </div>
+    <div class="wavebar"><svg viewBox="0 0 1200 13" preserveAspectRatio="none"><path d="M0 7 Q150 0 300 7 T600 7 T900 7 T1200 7 V13 H0 Z" fill="currentColor" opacity=".18"/><path d="M0 9 Q150 2 300 9 T600 9 T900 9 T1200 9" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".4"/></svg></div>
+    <div class="scroll" id="scroll"><div class="thread" id="thread"></div></div>
+    <div class="composer">
+      <div class="box">
+        <textarea id="input" rows="1" placeholder="Pergunte ao Salus sobre o Auxílio-Saúde…" oninput="autoGrow(this)" onkeydown="onKey(event)"></textarea>
+        <button class="send" onclick="onSend()" aria-label="Enviar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>
+        </button>
+      </div>
+      <div class="hint">Respostas com base na <b>Resolução nº 25/2021</b> · O Salus orienta, mas não substitui a análise da <b>DIGEP</b>.</div>
+    </div>
+  </main>
+</div>
+
+<template id="mascot-tpl">
+  <svg class="mascot" width="124" height="124" viewBox="0 0 124 124" xmlns="http://www.w3.org/2000/svg" aria-label="Salus">
+    <ellipse cx="62" cy="114" rx="30" ry="6" fill="#063A4A" opacity=".12"/>
+    <line x1="62" y1="16" x2="62" y2="29" stroke="#05708C" stroke-width="3"/><circle cx="62" cy="13" r="5.5" fill="#F2A900"/>
+    <g filter="url(#ds)" transform="rotate(-3 62 60)">
+      <rect x="22" y="28" width="80" height="64" rx="24" fill="url(#g1)"/>
+      <rect x="22" y="28" width="80" height="64" rx="24" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="2"/>
+      <rect x="33" y="41" width="58" height="36" rx="17" fill="#04293A"/>
+      <circle cx="50" cy="58" r="6.5" fill="#7FE9FF"/><circle cx="74" cy="58" r="6.5" fill="#7FE9FF"/>
+      <circle cx="52" cy="56" r="2" fill="#fff"/><circle cx="76" cy="56" r="2" fill="#fff"/>
+      <path d="M51 69 Q62 76 73 69" stroke="#7FE9FF" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </g>
+    <path d="M22 62 Q13 62 13 51" stroke="#05708C" stroke-width="4" fill="none" stroke-linecap="round"/><rect x="9" y="49" width="8" height="15" rx="3" fill="#05708C"/>
+    <g transform="translate(62,97)"><circle r="12" fill="#fff" stroke="#0799BD" stroke-width="2.2"/><rect x="-2.4" y="-6.5" width="4.8" height="13" rx="1.4" fill="#0799BD"/><rect x="-6.5" y="-2.4" width="13" height="4.8" rx="1.4" fill="#0799BD"/></g>
+  </svg>
+</template>
+
+<script>
+const MASCOT=()=>document.getElementById('mascot-tpl').content.cloneNode(true);
+const $=(id)=>document.getElementById(id);
+let $thread,$scroll,$input;
+let ctx={cargo:null,vinculo:null}; let userName='';
+
+/* ---------- LOGIN ---------- */
+function fitMascot(host,size){ const m=MASCOT(); host.appendChild(m); const svg=host.querySelector('svg'); svg.setAttribute('width',size); svg.setAttribute('height',size); }
+function segPick(group,val,btn){
+  ctx[group]=val;
+  $('seg-'+group).querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  $('lg-enter').disabled = !(ctx.cargo && ctx.vinculo);
+}
+window.segPick=segPick;
+function enterApp(){ userName=$('lg-nome').value.trim(); showApp(); }
+function skipLogin(){ ctx={cargo:null,vinculo:null}; userName=''; showApp(); }
+window.enterApp=enterApp; window.skipLogin=skipLogin;
+function editProfile(){ $('app').style.display='none'; $('login').style.display='flex';
+  // pré-preenche
+  $('lg-nome').value=userName;
+  ['cargo','vinculo'].forEach(g=>$('seg-'+g).querySelectorAll('.seg-btn').forEach(b=>b.classList.toggle('on', ctx[g] && b.textContent===ctx[g])));
+  $('lg-enter').disabled=!(ctx.cargo&&ctx.vinculo);
+}
+window.editProfile=editProfile;
+function showApp(){ $('login').style.display='none'; $('app').style.display='flex';
+  $thread=$('thread'); $scroll=$('scroll'); $input=$('input'); renderWelcome(); $input.focus(); }
+
+/* ---------- Base de conhecimento ---------- */
+function res(art){return{fonte:'Resolução TJTO nº 25/2021',ref:art};}
+const KB=[
+  { k:['quem tem direito','direito','elegiv','posso receber','recebo','tenho direito'],
+    a:`<p class="lead ok">✅ <strong>Têm direito: magistrados, servidores e inativos.</strong></p>
+       <ul><li><strong>Magistrados</strong> (ativos e inativos);</li>
+       <li><strong>Servidores efetivos e comissionados</strong> ativos;</li>
+       <li>Servidores <strong>cedidos/à disposição</strong> e <strong>inativos</strong> — em regra, <strong>só o titular</strong>.</li></ul>
+       <p>É um benefício <strong>indenizatório</strong>: você paga o plano e recebe <strong>reembolso parcial</strong>.</p>`,
+    s:res('arts. 2º e 3º'), f:['Quais dependentes posso incluir?','Qual o teto do reembolso?'] },
+  { k:['dependente','filho','conjuge','cônjuge','companhei','enteado'],
+    a:`<p class="lead ok">✅ <strong>Sim — entram cônjuge e filhos.</strong></p>
+       <ul><li><strong>Cônjuge/companheiro(a)</strong> (união estável comprovada);</li>
+       <li><strong>Filhos/enteados</strong> até <strong>24 anos, 11 meses e 29 dias</strong>;</li>
+       <li>Filhos com <strong>invalidez/deficiência</strong> permanente, <strong>sem limite de idade</strong>.</li></ul>
+       <p class="lead warn">⚠️ Dependentes de <strong>cedidos, à disposição e inativos</strong> <strong>não</strong> têm direito — só o titular.</p>`,
+    s:res('art. 4º'), f:['Que documentos preciso enviar?','Quero simular o valor'] },
+  { k:['documento','comprov','anexar','declaração','declaracao','o que enviar','o que anexar'],
+    a:`<p class="lead">📌 <strong>Depende do seu plano.</strong> Na <strong>regra geral</strong>, costuma pedir:</p>
+       <ul><li><strong>Declaração da operadora</strong> (CNPJ + mensalidades por beneficiário);</li>
+       <li><strong>Comprovante de pagamento</strong>;</li>
+       <li><strong>Contrato</strong> com operadora credenciada na ANS;</li>
+       <li>Documentos dos <strong>dependentes</strong>;</li>
+       <li><strong>Termo de Responsabilidade</strong> assinado.</li></ul>
+       <p>No módulo, entram nos campos <code>Comp. de Vínculo</code> e <code>Comp. de Valor</code>. 💡 Tem plano <strong>SERVIR</strong> ou <strong>GEAP</strong>? Me diga que eu simplifico.</p>`,
+    s:{fonte:'Manual do Auxílio-Saúde / eGESP', ref:'documentação'}, f:['Tenho plano SERVIR','Tenho plano GEAP','Como faço para solicitar?'] },
+  { k:['prazo','fevereiro','quando','prestação','prestacao','até quando'],
+    a:`<p class="lead">🗓️ <strong>Prestação de contas: até o último dia útil de fevereiro</strong> (referente ao ano anterior).</p>
+       <p>⚠️ Perder o prazo <strong>suspende</strong> o benefício: <strong>15 dias</strong> para regularizar e <strong>cancelamento</strong> após <strong>90 dias</strong>.</p>`,
+    s:res('art. 9º'), f:['Minha solicitação foi indeferida, e agora?','Que documentos preciso enviar?'] },
+  { k:['passo a passo','passo','como solicit','como faço','como faco','como pedir','como solicito','solicitar','onde solicit'],
+    a:`<p class="lead">📝 <strong>Você solicita pelo eGESP.</strong> Cada pedido passa por estes status:</p>`,
+    stepper:[['Enviada','Você preenche beneficiários, contrato, vigência e valor e anexa os comprovantes.'],
+      ['Documentação Validada','A equipe confere se os documentos comprovam vínculo e pagamento.'],
+      ['Validada','Confirma-se que o vínculo funcional é compatível com o benefício.'],
+      ['Deferida','Pedido aprovado conforme a Resolução 25/2021.'],
+      ['Incluída em Folha','O reembolso entra na sua folha de pagamento.']],
+    s:{fonte:'Fluxo do módulo eGESP', ref:'telas de solicitação'}, f:['Quero simular o valor','Quais documentos preciso enviar?'] },
+  { k:['indefer','negad','pendência','pendencia','recus','glosa','correção','correcao','deu erro','foi negada'],
+    a:`<p class="lead warn">⚠️ <strong>Dá pra resolver — corrija e reenvie em até 15 dias.</strong></p>
+       <p>Costuma ser por:</p><ul>
+       <li>Documento <strong>ilegível</strong>/incompleto;</li>
+       <li><strong>Consulta avulsa</strong> sem vínculo com o plano;</li>
+       <li>Valor/vigência <strong>divergentes</strong> da declaração da operadora.</li></ul>
+       <p>👉 Leia a <strong>justificativa no histórico</strong> do protocolo, ajuste o documento e <strong>reenvie</strong>. Vamos resolver juntos.</p>`,
+    s:res('art. 10'), f:['Que documentos preciso enviar?','Qual o prazo?'] },
+  { k:['teto','limite','10%','quanto','máximo','maximo','valor máximo','quanto recebo'],
+    a:`<p class="lead">📌 <strong>Você recebe o menor entre 3 limites.</strong></p>
+       <ul><li><strong>Teto por faixa etária</strong> (Anexo I);</li>
+       <li><strong>10% do subsídio</strong> — servidor: do juiz substituto (<strong>R$ 3.408,34</strong>); magistrado: do próprio cargo;</li>
+       <li>O <strong>valor que você paga</strong> ao plano.</li></ul><p>👇 Simule a sua estimativa:</p>`,
+    s:res('art. 6º e Anexo I'), sim:true, f:['Quem tem direito?'] },
+  { k:['simular','simulação','simulacao','calcular','estimar','simule'],
+    a:`<p class="lead">🧮 <strong>Bora estimar seu reembolso.</strong> Preencha os campos:</p><p><small>Tetos por faixa: <strong>Portaria 2468/2022</strong> (a confirmar reajuste com a DIGEP).</small></p>`,
+    s:res('Anexo I'), sim:true, f:['Qual o teto do reembolso?','Quais dependentes posso incluir?'] },
+  { k:['contato','atendimento','falar com','humano','telefone','e-mail','email','sasdigep','digep','presencial'],
+    a:`<p class="lead">📞 <strong>Atendimento humano — SASDIGEP (DIGEP).</strong></p>
+       <ul><li>📞 <strong>(63) 3142-1178</strong></li>
+       <li>✉️ <strong>digep@tjto.jus.br</strong></li>
+       <li>🏛️ Presencial: <strong>Anexo I do TJ, 6º andar</strong> (Palmas/TO)</li></ul>
+       <p>💡 Para análise de um documento específico, o <strong>presencial</strong> costuma resolver mais rápido.</p>`,
+    s:{fonte:'Canais de atendimento — DIGEP', ref:'SASDIGEP'}, f:['Como faço para solicitar o reembolso?','Minha solicitação foi indeferida, e agora?'] },
+  { k:['alterar','alteração','alteracao','trocar plano','trocar de plano','mudar plano','mudar valor','corrigir','editar solicit','reinclu','desatualizado','novo protocolo','caneta azul','como altero'],
+    a:`<p class="lead warn">⚠️ <strong>Para trocar de plano/valor, use Alteração — NÃO cancele.</strong></p>
+       <p>Cancelar interrompe o pagamento, sem retroativo. O caminho certo é a <strong>Alteração</strong>.</p>
+       <p>📌 <strong>A causa nº 1 de invalidação:</strong> a alteração importa os beneficiários antigos <strong>com os documentos antigos</strong>. Você precisa <strong>excluí-los e reinseri-los</strong> com a documentação atualizada — senão volta "documento desatualizado".</p>`,
+    stepper:[['Abrir a alteração','Em "Solicitar Auxílio-Saúde", ache o protocolo → coluna Ações → caneta azul (Alterar).'],
+      ['Excluir os beneficiários carregados','No campo Beneficiários, exclua TODOS (ícone vermelho) — vieram com documentos antigos.'],
+      ['Reinserir atualizado','Cadastre de novo o titular e cada dependente que continua, com os documentos do mês.'],
+      ['Enviar','Cria um novo protocolo; o anterior segue ativo até o novo entrar em folha (sem corte no pagamento).']],
+    s:{fonte:'Manual eGESP + base de conhecimento (§7)', ref:'fluxo de alteração'}, f:['Quais documentos preciso enviar?','Minha solicitação foi indeferida, e agora?'] },
+  { k:['servir'],
+    a:`<p class="lead ok">✅ <strong>SERVIR: um documento só.</strong></p>
+       <p>Anexe apenas o <strong>extrato atualizado</strong> do plano (com data de emissão) — ele já comprova <strong>vínculo</strong> e <strong>pagamento</strong>.</p>
+       <p>📍 Onde obter: Portal do Beneficiário SERVIR → <strong>"Relatório"</strong> → <strong>"Reembolso Auxílio Saúde TJTO"</strong> (<code>servir-beneficiario.asertsaude.com.br</code>).</p>`,
+    s:{fonte:'Base de conhecimento — documentação por plano', ref:'SERVIR'}, f:['Quais documentos preciso enviar?','Como faço para solicitar o reembolso?'] },
+  { k:['geap'],
+    a:`<p class="lead">📌 <strong>GEAP: 3 documentos.</strong></p>
+       <ul><li><strong>Declaração de ressarcimento</strong> (identifica beneficiários, individualiza valores e a referência da mensalidade);</li>
+       <li><strong>Boleto</strong> da mensalidade;</li>
+       <li><strong>Comprovante de pagamento</strong>.</li></ul>`,
+    s:{fonte:'Base de conhecimento — documentação por plano', ref:'GEAP'}, f:['Quais documentos preciso enviar?','Como faço para solicitar o reembolso?'] },
+];
+const OUT_OF_SCOPE={ a:`<p class="lead">🙂 <strong>Eu cuido só do Auxílio-Saúde do TJTO.</strong></p><p>Para outros assuntos, procure sua unidade ou a <strong>DIGEP</strong> (SASDIGEP · (63) 3142-1178 · digep@tjto.jus.br).</p><p>Sobre o Auxílio-Saúde posso falar de: <strong>direito, dependentes, documentos, prazos, passo a passo, simulação e pendências</strong>.</p>`,
+  f:['Quem tem direito?','Como faço para solicitar?'] };
+const FAIXAS={'0-18':490.89,'19-23':610.72,'24-28':717.03,'29-33':876.41,'34-38':976.97,'39-43':1017.53,'44-48':1202.81,'49-53':1405.36,'54-58':1671.80,'59+':6267.39};
+const SHORT=[
+  {ic:'🧑‍⚖️',c:'#0799BD',t:'Quem tem direito?',d:'Magistrados, servidores e elegibilidade.',q:'Quem tem direito ao Auxílio-Saúde?'},
+  {ic:'👨‍👩‍👧',c:'#16A0A0',t:'Dependentes',d:'Quem incluir e até que idade.',q:'Quais dependentes posso incluir?'},
+  {ic:'📝',c:'#C98A00',t:'Como solicitar',d:'Passo a passo no eGESP.',q:'Como faço para solicitar o reembolso?'},
+  {ic:'🧮',c:'#1E9E6A',t:'Quanto recebo?',d:'Simule pela faixa etária.',q:'Quero simular o valor do meu reembolso'},
+  {ic:'🗓️',c:'#E08A1E',t:'Prazos',d:'Prestação de contas e datas.',q:'Qual o prazo para prestação de contas?'},
+  {ic:'⚠️',c:'#D64550',t:'Deu erro / indeferiu',d:'Motivo e como corrigir.',q:'Minha solicitação foi indeferida, e agora?'},
+];
+function saud(){ const h=new Date().getHours(); return h<12?'Bom dia':h<18?'Boa tarde':'Boa noite'; }
+function ctxAtivo(){ return ctx.cargo||ctx.vinculo; }
+
+function renderWelcome(){
+  $thread.innerHTML='';
+  const w=document.createElement('div'); w.className='welcome';
+  const g=document.createElement('div'); g.className='mglow';
+  const m=document.createElement('div'); m.className='mascot float'; fitMascot(m,78); g.appendChild(m); w.appendChild(g);
+  const nome = userName? `, ${userName}` : '';
+  w.insertAdjacentHTML('beforeend',`
+    <h1>${saud()}${nome}! Sou o <span>Salus</span> 👋</h1>
+    <p class="sub">Pergunte do seu jeito sobre o <strong>Auxílio-Saúde do TJTO</strong>. Respondo com base na <strong>Resolução nº 25/2021</strong> e mostro a fonte oficial.</p>
+    <div class="wchip">${ctxAtivo()?`<span class="ctx-tag">👤 ${ctx.cargo||'—'} · ${ctx.vinculo||'—'} <span class="ed" onclick="editProfile()">trocar</span></span>`:`<span class="ctx-tag">👤 Perfil não informado <span class="ed" onclick="editProfile()">personalizar</span></span>`}</div>
+    <div class="shortcuts">${SHORT.map(s=>`<div class="sc" style="--c:${s.c}" onclick='ask(${JSON.stringify(s.q)})'><div class="ic">${s.ic}</div><b>${s.t}</b><small>${s.d}</small></div>`).join('')}</div>
+    <div class="reassure"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l9 4v6c0 5-3.8 9.4-9 11-5.2-1.6-9-6-9-11V5l9-4z"/></svg> Respostas verificadas e fundamentadas na norma — não em "achismo" de IA.</div>`);
+  $thread.appendChild(w); scrollTop();
+}
+function botAvatar(){ const av=document.createElement('div'); av.className='avatar'; fitMascot(av,38); return av; }
+function addUser(text){ killWelcome(); const el=document.createElement('div'); el.className='msg user';
+  el.innerHTML=`<div class="avatar you">${(userName||'EU').slice(0,2).toUpperCase()}</div><div class="bubble"></div>`; el.querySelector('.bubble').textContent=text; $thread.appendChild(el); scrollDown(); }
+function killWelcome(){ const w=$thread.querySelector('.welcome'); if(w)w.remove(); }
+function addThinking(){ const el=document.createElement('div'); el.className='msg bot'; el.id='typing'; el.appendChild(botAvatar());
+  el.insertAdjacentHTML('beforeend',`<div class="bubble"><div class="thinking">
+    <svg class="mag" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <span class="shimmer">Consultando a Resolução nº 25/2021…</span></div></div>`);
+  $thread.appendChild(el); scrollDown(); }
+function addBot(item){
+  const t=$('typing'); if(t)t.remove();
+  const el=document.createElement('div'); el.className='msg bot'; el.appendChild(botAvatar());
+  const b=document.createElement('div'); b.className='bubble'; let html=personalize(item.a);
+  if(item.stepper){ html+='<div class="stepper">'; item.stepper.forEach((s,i)=>{ html+=`<div class="step"><div class="rail"><div class="node">${i+1}</div><div class="line"></div></div><div class="txt"><b>${s[0]}</b><span>${s[1]}</span></div></div>`; }); html+='</div>'; }
+  if(item.s){ html+=`<div class="source">
+      <svg class="seal" width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 1.6 2.9-.2 1 2.7 2.4 1.6-.8 2.8.8 2.8-2.4 1.6-1 2.7-2.9-.2L12 22l-2.4-1.6-2.9.2-1-2.7L3.3 14l.8-2.8L3.3 8.4l2.4-1.6 1-2.7 2.9.2L12 2z" fill="#F2A900"/><path d="M8.5 12l2.2 2.2 4.3-4.4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div><span class="lbl">Fonte oficial</span><br><b>${item.s.fonte}</b>${item.s.ref?` — ${item.s.ref}`:''}</div>
+      <span class="vf">✓ verificado</span></div>`; }
+  if(item.sim){ html+=simHtml(); }
+  if(item.f&&item.f.length){ html+='<div class="followups">'+item.f.map(q=>`<button class="followup" onclick='ask(${JSON.stringify(q)})'>${q}</button>`).join('')+'</div>'; }
+  html+=`<div class="feedback"><button onclick="fb(this,1)" aria-label="Útil">👍</button><button onclick="fb(this,0)" aria-label="Não útil">👎</button><small>Esta resposta ajudou?</small></div>`;
+  b.innerHTML=html; el.appendChild(b); $thread.appendChild(el); scrollDown();
+}
+function personalize(html){ if(!ctxAtivo())return html;
+  const who=`${ctx.cargo||''}${ctx.vinculo?` (${ctx.vinculo})`:''}`.trim();
+  return `<p style="margin:0 0 9px"><span class="ctx-tag">👤 Considerando: ${who}</span></p>`+html; }
+function simHtml(){ return `<div class="sim"><div class="sim-h">🧮 Simulador de reembolso <small style="opacity:.8;font-weight:400">· Anexo I (Portaria 2468/2022)</small></div>
+  <div class="sim-b">
+    <div><label>Faixa etária</label><select class="s-faixa">${Object.keys(FAIXAS).map(f=>`<option value="${f}">${f.replace('+',' ou mais')} anos</option>`).join('')}</select></div>
+    <div><label>Valor pago no plano (R$)</label><input class="s-valor" type="number" value="708.57"></div>
+    <div class="full"><label>Teto de 10% do subsídio (R$) — opcional</label><input class="s-teto" type="number" placeholder="ex.: 4500.00"></div>
+    <button class="full" onclick="simular(this)">Calcular estimativa</button>
+    <div class="sim-out"></div></div></div>`; }
+window.simular=function(btn){ const box=btn.closest('.sim-b');
+  const faixa=box.querySelector('.s-faixa').value, valor=parseFloat(box.querySelector('.s-valor').value)||0, tetoSub=parseFloat(box.querySelector('.s-teto').value)||Infinity;
+  const tetoFaixa=FAIXAS[faixa], reembolso=Math.min(valor,tetoFaixa,tetoSub);
+  const motivo=reembolso===valor?'limitado pelo valor pago':reembolso===tetoFaixa?'limitado pelo teto da faixa':'limitado pelos 10% do subsídio';
+  const out=box.querySelector('.sim-out');
+  out.innerHTML=`Estimativa mensal:<br><span class="val">R$ ${reembolso.toFixed(2).replace('.',',')}</span><br><small>Teto da faixa ${faixa.replace('+',' ou mais')}: R$ ${tetoFaixa.toFixed(2).replace('.',',')} · ${motivo}.<br>⚠️ Tabela oficial (Portaria 2468/2022); confirmar reajuste pós-2022 e o teto de 10% com a DIGEP.</small>`;
+  out.classList.add('show'); };
+function fb(btn,good){ btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('act')); btn.classList.add('act');
+  btn.parentElement.querySelector('small').textContent=good?'Obrigado pelo retorno! 💙':'Obrigado! Vou encaminhar para a DIGEP melhorar.'; }
+window.fb=fb;
+function findAnswer(q){ const t=q.toLowerCase();
+  const gr=['oi','olá','ola','bom dia','boa tarde','boa noite']; if(gr.some(g=>t.trim().startsWith(g))&&t.length<18) return {a:`<p>${saud()}! 😊 Sou o <strong>Salus</strong>. Posso falar sobre direito ao benefício, dependentes, documentos, prazos, como solicitar, simulação de valor e pendências. Por onde começamos?</p>`,f:['Quem tem direito?','Como faço para solicitar?','Quero simular o valor']};
+  let best=null,bs=0; for(const it of KB){ let s=0; for(const kw of it.k){ if(t.includes(kw)) s+=kw.length; } if(s>bs){bs=s;best=it;} }
+  return (best&&bs>0)?best:OUT_OF_SCOPE; }
+function ask(q){ $input.value=q; onSend(); } window.ask=ask;
+function onSend(){ const text=$input.value.trim(); if(!text)return; addUser(text); $input.value=''; autoGrow($input); addThinking();
+  const item=findAnswer(text); setTimeout(()=>addBot(item), 800+Math.min(text.length*8,700)); }
+window.onSend=onSend;
+function resetChat(){ renderWelcome(); closeMenu(); } window.resetChat=resetChat;
+function scrollDown(){ requestAnimationFrame(()=>$scroll.scrollTop=$scroll.scrollHeight); }
+function scrollTop(){ requestAnimationFrame(()=>$scroll.scrollTop=0); }
+function autoGrow(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,110)+'px'; } window.autoGrow=autoGrow;
+function onKey(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); onSend(); } } window.onKey=onKey;
+function toggleMenu(){ $('sidebar').classList.toggle('open'); $('scrim').classList.toggle('show'); }
+function closeMenu(){ $('sidebar').classList.remove('open'); $('scrim').classList.remove('show'); }
+window.toggleMenu=toggleMenu;
+
+/* init */
+fitMascot($('lg-mascot'),74);
+fitMascot($('brand-mascot'),44);
+</script>
+</body>
+</html>
